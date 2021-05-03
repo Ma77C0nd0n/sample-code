@@ -11,7 +11,7 @@ namespace MapperService
 
         /// A parent may have multiple children. 
         /// A child may have only one parent.
-        private readonly Dictionary<int, int> ChildToParentDictionary;
+        private Dictionary<int, int> ChildToParentDictionary;
 
         public OneToManyMapper()
         {
@@ -26,7 +26,7 @@ namespace MapperService
                 throw new ApplicationException($"Child {child} already has a parent.");
             }
             ChildToParentDictionary.Add(child, parent);
-            Console.WriteLine($"Mapping created succesfully. Parent: {parent}, Child: {child}");
+            Console.WriteLine($"Mapping created successfully. Parent: {parent}, Child: {child}");
         }
 
         public IEnumerable<int> GetChildren(int parent)
@@ -42,42 +42,71 @@ namespace MapperService
             {
                 return defaultParent;
             }
-            throw new ApplicationException($"Child {child} does not exist.");
+            return 0;
         }
 
         public void RemoveChild(int child)
         {
-            throw new NotImplementedException();
+            ValidateInput(child);
+            if (!ChildToParentDictionary.Remove(child)){
+                throw new ApplicationException($"Child {child} does not exist.");
+            }
+            Console.WriteLine($"Child {child} removed successfully.");
         }
 
         public void RemoveParent(int parent)
         {
-            throw new NotImplementedException();
+            var parentChildren = GetChildren(parent);
+            if (!parentChildren.Any())
+            {
+                throw new ApplicationException($"Parent {parent} does not exist.");
+            }
+            foreach (int child in parentChildren)
+            {
+                ChildToParentDictionary.Remove(child);
+            }
         }
 
         public void UpdateChild(int oldChild, int newChild)
         {
-            throw new NotImplementedException();
+            ValidateInput(oldChild, newChild);
+            var parent = GetParent(oldChild);
+            if (parent == 0)
+            {
+                throw new ApplicationException($"Child {oldChild} does not exist.");
+            }
+            RemoveChild(oldChild);
+            Add(parent, newChild);
         }
 
         public void UpdateParent(int oldParent, int newParent)
         {
-            throw new NotImplementedException();
+            ValidateInput(oldParent, newParent);
+            var parentChildren = GetChildren(oldParent).ToList();
+            if (!parentChildren.Any())
+            {
+                throw new ApplicationException($"Parent {oldParent} does not exist.");
+            }
+            foreach (int child in parentChildren)
+            {
+                RemoveChild(child);
+                Add(newParent, child);
+            }
         }
 
-        private void ValidateInput(int identifier)
+        private void ValidateInput(int input)
         {
-            if (InputOutOfRange(identifier))
+            if (InputOutOfRange(input))
             {
-                throw new ArgumentException($"Parameter {identifier} invalid.");
+                throw new ArgumentException($"Parameter {input} invalid.");
             }
         }
         
-        private void ValidateInput(int parent, int child)
+        private void ValidateInput(int input1, int input2)
         {
-            if (InputOutOfRange(parent) || InputOutOfRange(child) || child == parent)
+            if (InputOutOfRange(input1) || InputOutOfRange(input2) || input2 == input1)
             {
-                throw new ArgumentException($"One or more parameters invalid. Parent: {parent}, Child: {child}");
+                throw new ArgumentException($"One or more parameters invalid. {input1}, {input2}");
             }
         }
 
