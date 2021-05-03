@@ -1,11 +1,10 @@
 using NUnit.Framework;
 using System;
-using System.Linq;
 
 namespace MapperService.Unit.Tests.OneToManyMapperTests
 {
     [TestFixture]
-    public class GetParent
+    public class RemoveChild
     {
         private OneToManyMapper _sut;
 
@@ -18,36 +17,33 @@ namespace MapperService.Unit.Tests.OneToManyMapperTests
         [Test]
         public void ShouldThrowArgumentException_WhenInputIsOutOfMinRange()
         {
-            Assert.Throws<ArgumentException>(() => _sut.GetParent(0));
+            Assert.Throws<ArgumentException>(() => _sut.RemoveChild(0));
         }
 
         [Test]
         public void ShouldThrowArgumentException_WhenInputIsOutOfMaxRange()
         {
-            Assert.Throws<ArgumentException>(() => _sut.GetParent(947483648));
+            Assert.Throws<ArgumentException>(() => _sut.RemoveChild(947483648));
         }
 
         [Test]
-        public void ShouldReturnZero_WhenMapIsNotPopulated()
+        public void ShouldThrowApplicationException_WhenMapIsNotPopulated()
         {
-            var res = _sut.GetParent(20);
-            Assert.AreEqual(0, res);
+            Assert.Throws<ApplicationException>(() => _sut.RemoveChild(1));
         }
 
         [Test]
-        public void ShouldReturnZero_WhenMapDoesNotContainChild()
-        {
-            _sut.Add(1, 2);
-            var res = _sut.GetParent(20);
-            Assert.AreEqual(0, res);
-        }
-
-        [Test]
-        public void ShouldReturnParent_WhenMapIsPopulated()
+        public void ShouldThrowApplicationException_WhenMapDoesNotContainChild()
         {
             _sut.Add(1, 2);
-            var res = _sut.GetParent(2);
-            Assert.AreEqual(1, res);
+            Assert.Throws<ApplicationException>(() => _sut.RemoveChild(20));
+        }
+
+        [Test]
+        public void ShouldNotThrow_WhenRemovedSuccessfully()
+        {
+            _sut.Add(1, 2);
+            Assert.DoesNotThrow(() => _sut.RemoveChild(2));
         }
     }
 }
