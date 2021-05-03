@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MapperService
 {
@@ -19,10 +20,7 @@ namespace MapperService
 
         public void Add(int parent, int child)
         {
-            if (InputOutOfRange(parent) || InputOutOfRange(child) || child == parent)
-            {
-                throw new ArgumentException($"One or more parameters invalid. Parent: {parent}, Child: {child}");
-            }
+            ValidateInput(parent, child);
             if (ChildToParentDictionary.ContainsKey(child))
             {
                 throw new ApplicationException($"Child {child} already has a parent.");
@@ -33,12 +31,18 @@ namespace MapperService
 
         public IEnumerable<int> GetChildren(int parent)
         {
-            throw new NotImplementedException();
+            ValidateInput(parent);
+            return ChildToParentDictionary.Where(x => x.Value == parent).Select(y => y.Key);
         }
 
         public int GetParent(int child)
         {
-            throw new NotImplementedException();
+            ValidateInput(child);
+            if (ChildToParentDictionary.TryGetValue(child, out int defaultParent))
+            {
+                return defaultParent;
+            }
+            throw new ApplicationException($"Child {child} does not exist.");
         }
 
         public void RemoveChild(int child)
@@ -61,9 +65,20 @@ namespace MapperService
             throw new NotImplementedException();
         }
 
-        private bool IsValidInput(int parent, int child)
+        private void ValidateInput(int identifier)
         {
-            return true;
+            if (InputOutOfRange(identifier))
+            {
+                throw new ArgumentException($"Parameter {identifier} invalid.");
+            }
+        }
+        
+        private void ValidateInput(int parent, int child)
+        {
+            if (InputOutOfRange(parent) || InputOutOfRange(child) || child == parent)
+            {
+                throw new ArgumentException($"One or more parameters invalid. Parent: {parent}, Child: {child}");
+            }
         }
 
         private bool InputOutOfRange(int input) => input > MAX_INT || input < MIN_INT;

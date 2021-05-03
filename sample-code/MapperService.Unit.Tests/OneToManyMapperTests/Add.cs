@@ -27,12 +27,6 @@ namespace MapperService.Unit.Tests.OneToManyMapperTests
         }
 
         [Test]
-        public void ShouldThrowArgumentException_WhenInputIsOutOfRange()
-        {
-            Assert.Throws<ArgumentException>(() => _sut.Add(0, 1));
-        }
-        
-        [Test]
         public void ShouldThrowArgumentException_WhenParentAndChildAreEqual()
         {
             Assert.Throws<ArgumentException>(() => _sut.Add(1, 1));
