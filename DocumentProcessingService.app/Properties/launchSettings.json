@@ -1,0 +1,10 @@
+﻿{
+  "profiles": {
+    "DocumentProcessingService.app": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
