@@ -1,4 +1,6 @@
-﻿using DocumentProcessingService.app.Services;
+﻿using DocumentProcessingService.app.Queries;
+using DocumentProcessingService.app.Repositories;
+using DocumentProcessingService.app.Services;
 using DocumentProcessingService.app.Stores;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,15 +11,18 @@ namespace DocumentProcessingService.app.Infrastructure.Extensions
         internal static IServiceCollection RegisterServices(this IServiceCollection services)
         {
             services
-                .AddTransient<IFileReadingService, FileReadingService>()
+                .AddSingleton<IFileOrchestratorService, FileOrchestratorService>()
+                .AddTransient<IFileProcessingService, FileProcessingService>()
                 .AddTransient<IFileDeletionService, FileDeletionService>();
             return services;
         }
 
-        internal static IServiceCollection AddStores(this IServiceCollection services)
+        internal static IServiceCollection AddRepositories(this IServiceCollection services)
         {
-            services.AddTransient<ILookupStore, LookupStore>();
-            return services;
+            return services
+                .AddTransient<ILookupStore, LookupStore>()
+                .AddTransient<IFileShareQuery, FileShareQuery>()
+                .AddTransient<IFileStreamReader, FileStreamReader>();
         }
     }
 }

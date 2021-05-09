@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using DocumentProcessingService.app.Infrastructure.Extensions;
 
 namespace DocumentProcessingService.app
@@ -16,9 +17,14 @@ namespace DocumentProcessingService.app
                 .ConfigureServices((hostContext, services) =>
                 {
                     services
-                        .AddHostedService<Worker>()
+                        .AddHostedService<DocumentProcessingWorker>()
                         .RegisterServices()
-                        .AddStores();
+                        .AddRepositories();
+                })
+                .ConfigureLogging((host, logging) =>
+                {
+                    logging.ClearProviders();
+                    logging.AddConsole();
                 });
     }
 }
