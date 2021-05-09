@@ -6,6 +6,6 @@ namespace DocumentProcessingService.app.Models
     {
         public string ProcessingType { get; set; }
         public IEnumerable<string> Parameters { get; set; }
-        public string Body { get; set; }
+        public IEnumerable<string> Body { get; set; }
     }
 }

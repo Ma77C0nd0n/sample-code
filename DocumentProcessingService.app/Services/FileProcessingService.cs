@@ -25,6 +25,14 @@ namespace DocumentProcessingService.app.Services
             var keywords = new List<string>();
             var documentContents = await _fileShareQuery.ReadFile(fileName);
 
+
+            foreach (var line in documentContents.Body)
+            {
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    //do stuff
+                }
+            }
             //TODO: implement keyword search
             return keywords;
         }
