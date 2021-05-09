@@ -4,8 +4,8 @@ namespace DocumentProcessingService.app.Models
 {
     public class DocumentContent
     {
-        public string Client { get; set; }
-        public string DocumentId { get; set; }
-        public IEnumerable<string> Keywords { get; set; }
+        public string ProcessingType { get; set; }
+        public IEnumerable<string> Parameters { get; set; }
+        public string Body { get; set; }
     }
 }
