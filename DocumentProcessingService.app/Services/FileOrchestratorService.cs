@@ -6,13 +6,14 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DocumentProcessingService.app.Stores;
+using DocumentProcessingService.app.Repositories;
 
 namespace DocumentProcessingService.app.Services
 {
 
     public interface IFileOrchestratorService
     {
-        Task Handle();
+        Task DoWork();
     }
 
     public class FileOrchestratorService : IFileOrchestratorService
@@ -20,18 +21,16 @@ namespace DocumentProcessingService.app.Services
         private readonly IFileShareQuery _fileShareQuery;
         private readonly IFileProcessingService _fileProcessingService;
         private readonly ILookupStore _lookupStore;
-        private readonly IFileDeletionService _fileDeletionService;
-        private readonly ILogger<FileShareQuery> _logger;
+        private readonly IFileDeletionRepository _fileDeletionService;
+        private readonly ILogger<FileOrchestratorService> _logger;
         //TODO: Extend to read base fileshare location from env var
-        //TODO: Iterate through company directories rather than single path
-        private const string FileshareLocalRoot = "Fileshare_local";
-        private const string CompanyDirectory = "CompanyA";
+        private const string FileshareLocalRoot = "Fileshare_local\\CompaniesDirectory";
 
         public FileOrchestratorService(IFileShareQuery fileShareQuery, 
             IFileProcessingService fileProcessingService,
             ILookupStore lookupStore,
-            IFileDeletionService fileDeletionService,
-            ILogger<FileShareQuery> logger)
+            IFileDeletionRepository fileDeletionService,
+            ILogger<FileOrchestratorService> logger)
         {
             _fileShareQuery = fileShareQuery;
             _fileProcessingService = fileProcessingService;
@@ -40,27 +39,34 @@ namespace DocumentProcessingService.app.Services
             _logger = logger;
         }
 
-        public async Task Handle()
+        public async Task DoWork()
         {
-            string relativePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"..\..\..\{FileshareLocalRoot}\{CompanyDirectory}");
-            var fileNames = await _fileShareQuery.GetFileNamesForNetworkLocationAsync(relativePath);
-            _logger.LogInformation($"Retrieved {fileNames.Count()} files from network path: {relativePath}");
-            foreach (string fileNameWithPath in fileNames)
+            string baseDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"..\..\..\{FileshareLocalRoot}");
+            foreach (string companyDirectory in Directory.GetDirectories(baseDirectory))
             {
-                var fileName = Path.GetFileName(fileNameWithPath);
-                if (fileName.IsValidFileName())
+                var fileNames = await _fileShareQuery.GetFileNamesForNetworkLocationAsync(companyDirectory);
+                _logger.LogInformation($"Retrieved {fileNames.Count()} files from network path: {companyDirectory}");
+                
+                foreach (string fileNameWithPath in fileNames)
                 {
-                    string documentId = fileName.GetDocumentId();
-                    string documentName = fileName.GetDocumentName();
-                    var keywords = await _fileProcessingService.ProcessFile(fileNameWithPath);
-                    _lookupStore.Record(documentId, documentName, keywords);
-                    //future improvement - batch success files and delete after every file has been processed
-                    //add retry mechanism for unsuccessful files
-                    await _fileDeletionService.DeleteFileAsync(fileNameWithPath);
-                }
-                else
-                {
-                    _logger.LogWarning($"Invalid filename: {fileName}");
+                    var fileName = Path.GetFileName(fileNameWithPath);
+                    if (fileName.IsValidFileName())
+                    {
+                        string documentId = fileName.GetDocumentId();
+                        string documentName = fileName.GetDocumentName();
+                        var keywords = await _fileProcessingService.ProcessFile(fileNameWithPath);
+                        if (keywords != null)
+                        {
+                            await _lookupStore.RecordAsync(documentId, documentName, keywords);
+                            //future improvement - batch success files and delete after every file has been processed
+                            await _fileDeletionService.DeleteFileAsync(fileNameWithPath);
+                        }
+                        //future improvement: add retry mechanism for unsuccessful files
+                    }
+                    else
+                    {
+                        _logger.LogWarning($"Invalid filename: {fileName}");
+                    }
                 }
             }
         }

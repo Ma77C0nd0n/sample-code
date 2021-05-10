@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using DocumentProcessingService.app.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -10,13 +11,14 @@ namespace DocumentProcessingService.app
 {
     public class DocumentProcessingWorker : BackgroundService
     {
+        public IServiceProvider Services { get; }
+
         private readonly TimeSpan _actionInterval;
-        private IFileOrchestratorService _fileOrchestrator;
         private readonly ILogger<DocumentProcessingWorker> _logger;
 
-        public DocumentProcessingWorker(IFileOrchestratorService fileOrchestrator, ILogger<DocumentProcessingWorker> logger)
+        public DocumentProcessingWorker(IServiceProvider services, ILogger<DocumentProcessingWorker> logger)
         {
-            _fileOrchestrator = fileOrchestrator;
+            Services = services;
             _logger = logger;
             _actionInterval = TimeSpan.FromHours(1);
         }
@@ -30,7 +32,11 @@ namespace DocumentProcessingService.app
             {
                 try
                 {
-                    await _fileOrchestrator.Handle();
+                    using (var scope = Services.CreateScope())
+                    {
+                        var fileOrchestratorService = scope.ServiceProvider.GetRequiredService<IFileOrchestratorService>();
+                        await fileOrchestratorService.DoWork();
+                    }
                 }
                 catch (Exception e)
                 {

@@ -1,7 +1,9 @@
-﻿using DocumentProcessingService.app.Queries;
+﻿using DocumentProcessingService.app.Models;
+using DocumentProcessingService.app.Queries;
 using DocumentProcessingService.app.Repositories;
 using DocumentProcessingService.app.Services;
 using DocumentProcessingService.app.Stores;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DocumentProcessingService.app.Infrastructure.Extensions
@@ -11,18 +13,20 @@ namespace DocumentProcessingService.app.Infrastructure.Extensions
         internal static IServiceCollection RegisterServices(this IServiceCollection services)
         {
             services
-                .AddSingleton<IFileOrchestratorService, FileOrchestratorService>()
-                .AddTransient<IFileProcessingService, FileProcessingService>()
-                .AddTransient<IFileDeletionService, FileDeletionService>();
+                .AddScoped<IFileOrchestratorService, FileOrchestratorService>()
+                .AddScoped<IFileProcessingService, FileProcessingService>()
+                .AddScoped<IFileDeletionRepository, FileDeletionRepository>();
             return services;
         }
 
         internal static IServiceCollection AddRepositories(this IServiceCollection services)
         {
             return services
-                .AddTransient<ILookupStore, LookupStore>()
-                .AddTransient<IFileShareQuery, FileShareQuery>()
-                .AddTransient<IFileStreamReader, FileStreamReader>();
+                .AddDbContext<DocumentContext>(opt => opt.UseInMemoryDatabase("DocumentDatabase"))
+                .AddMemoryCache()
+                .AddScoped<ILookupStore, LookupStore>()
+                .AddScoped<IFileShareQuery, FileShareQuery>()
+                .AddScoped<IFileStreamReader, FileStreamReader>();
         }
     }
 }

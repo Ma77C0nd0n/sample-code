@@ -5,7 +5,7 @@ namespace DocumentProcessingService.app.Models
     public class DocumentContent
     {
         public string ProcessingType { get; set; }
-        public IEnumerable<string> Parameters { get; set; }
+        public Dictionary<string, bool> Parameters { get; set; }
         public IEnumerable<string> Body { get; set; }
     }
 }
