@@ -23,8 +23,8 @@ namespace DocumentProcessingService.app.Services
         private readonly ILookupStore _lookupStore;
         private readonly IFileDeletionRepository _fileDeletionService;
         private readonly ILogger<FileOrchestratorService> _logger;
-        //TODO: Extend to read base fileshare location from env var
-        private const string FileshareLocalRoot = "Fileshare_local\\CompaniesDirectory";
+        //TODO: Extend to read base fileshare location from configs
+        private const string FILESHARE_LOCAL_ROOT = "..\\..\\..\\Fileshare_local\\CompaniesDirectory";
 
         public FileOrchestratorService(IFileShareQuery fileShareQuery, 
             IFileProcessingService fileProcessingService,
@@ -41,8 +41,8 @@ namespace DocumentProcessingService.app.Services
 
         public async Task DoWork()
         {
-            string baseDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"..\..\..\{FileshareLocalRoot}");
-            foreach (string companyDirectory in Directory.GetDirectories(baseDirectory))
+            var directories = _fileShareQuery.GetDirectories(FILESHARE_LOCAL_ROOT); 
+            foreach (string companyDirectory in directories)
             {
                 var fileNames = await _fileShareQuery.GetFileNamesForNetworkLocationAsync(companyDirectory);
                 _logger.LogInformation($"Retrieved {fileNames.Count()} files from network path: {companyDirectory}");
@@ -61,7 +61,11 @@ namespace DocumentProcessingService.app.Services
                             //future improvement - batch success files and delete after every file has been processed
                             await _fileDeletionService.DeleteFileAsync(fileNameWithPath);
                         }
-                        //future improvement: add retry mechanism for unsuccessful files
+                        else
+                        {
+                            _logger.LogWarning($"File processed unsuccesfully: {fileName}, result will not be stored");
+                            //future improvement: add retry mechanism for unsuccessful files
+                        }
                     }
                     else
                     {
