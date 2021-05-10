@@ -57,7 +57,7 @@ namespace DocumentProcessingService.app.Services
                         var keywords = await _fileProcessingService.ProcessFile(fileNameWithPath);
                         if (keywords != null)
                         {
-                            await _lookupStore.RecordAsync(documentId, documentName, keywords);
+                            await _lookupStore.Record(documentId, documentName, keywords);
                             //future improvement - batch success files and delete after every file has been processed
                             await _fileDeletionService.DeleteFileAsync(fileNameWithPath);
                         }

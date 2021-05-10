@@ -30,7 +30,7 @@ namespace DocumentProcessingService.Test.Stores
         public async Task RecordAsync_ShouldPopulateDbWhenRequestIsValid()
         {
             // Act
-            await _sut.RecordAsync("clientA", "doc1", new string[] { "word" });
+            await _sut.Record("clientA", "doc1", new string[] { "word" });
 
             // Assert 
             _contextMock.Verify(x => x.DocumentItems.AddAsync(It.IsAny<DocumentItem>(), It.IsAny<CancellationToken>()), Times.Once);
@@ -41,7 +41,7 @@ namespace DocumentProcessingService.Test.Stores
         public async Task RecordAsync_ShouldPopulateDbWhenRequestKeywordsAreEmpty()
         {
             // Act
-            await _sut.RecordAsync("clientA", "doc1", new string[] {});
+            await _sut.Record("clientA", "doc1", new string[] {});
 
             // Assert 
             _contextMock.Verify(x => x.DocumentItems.AddAsync(It.IsAny<DocumentItem>(), It.IsAny<CancellationToken>()), Times.Once);
@@ -52,7 +52,7 @@ namespace DocumentProcessingService.Test.Stores
         public async Task RecordAsync_ShouldNotPopulateDbWhenRequestKeywordsAreNull()
         {
             // Act
-            await _sut.RecordAsync("clientA", "doc1", null);
+            await _sut.Record("clientA", "doc1", null);
 
             // Assert 
             _contextMock.Verify(x => x.DocumentItems.AddAsync(It.IsAny<DocumentItem>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -63,7 +63,7 @@ namespace DocumentProcessingService.Test.Stores
         public async Task RecordAsync_ShouldNotPopulateDbWhenRequestClientIsEmptyString()
         {
             // Act
-            await _sut.RecordAsync("", "doc1", new string[] { "test" });
+            await _sut.Record("", "doc1", new string[] { "test" });
 
             // Assert 
             _contextMock.Verify(x => x.DocumentItems.AddAsync(It.IsAny<DocumentItem>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -74,7 +74,7 @@ namespace DocumentProcessingService.Test.Stores
         public async Task RecordAsync_ShouldNotPopulateDbWhenRequestDocumentIdIsEmptyString()
         {
             // Act
-            await _sut.RecordAsync("client", "", new string[] { "test" });
+            await _sut.Record("client", "", new string[] { "test" });
 
             // Assert 
             _contextMock.Verify(x => x.DocumentItems.AddAsync(It.IsAny<DocumentItem>(), It.IsAny<CancellationToken>()), Times.Never);
