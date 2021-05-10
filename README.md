@@ -37,7 +37,6 @@ For each company directory - the file orchestrator:
 4. Calls on `FileDeletionRepository` to delete successfully processed files.
 
 ### How to install & run
-Run the following commands;
 
 - git clone https://github.com/Ma77C0nd0n/sample-code.git
 - open solution within sample-code sub-directory
