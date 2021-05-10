@@ -36,6 +36,16 @@ For each company directory - the file orchestrator:
 3. Persists document data via `LookupStore`
 4. Calls on `FileDeletionRepository` to delete successfully processed files.
 
+### How to install & run
+Run the following commands;
+
+- git clone https://github.com/Ma77C0nd0n/sample-code.git
+- open solution within sample-code sub-directory
+- set DocumentProcessingService.app as Startup Project
+- Ensure `Fileshare_local/CompaniesDirectory` has companies with valid files (valid file can be found in `Temp` directory
+- Build and Start project
+
+
 ### Technologies Used
 - .NetCore 3.1
 - EntityFrameworkCore in-memory database
@@ -48,6 +58,6 @@ If I had more time, I would improve the following
 - Error handling
 - Config files/config server for fileshare location and action interval  
 - Use an external, dedicated NoSQL database
-- Improve Test coverage
+- Improve Test coverage - for fileshare query and file deletion repo
 
 
