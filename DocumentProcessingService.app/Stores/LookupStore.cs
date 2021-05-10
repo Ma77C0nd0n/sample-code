@@ -16,7 +16,7 @@ namespace DocumentProcessingService.app.Stores
         /// <param name="documentId">Document identifier</param> 
         /// <param name="keywords">Enumeration of unique keywords found in the document, in any
         /// order. Only match exact words, not prefix match. </param> 
-        Task RecordAsync(string client, string documentId, IEnumerable<string> keywords);
+        Task Record(string client, string documentId, IEnumerable<string> keywords);
     }
 
     public class LookupStore : ILookupStore
@@ -30,7 +30,7 @@ namespace DocumentProcessingService.app.Stores
             _logger = logger;
         }
 
-        public async Task RecordAsync(string client, string documentId, IEnumerable<string> keywords)
+        public async Task Record(string client, string documentId, IEnumerable<string> keywords)
         {
             if (string.IsNullOrWhiteSpace(client) || string.IsNullOrWhiteSpace(documentId) || keywords == null)
             {

@@ -7,7 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OneToManyMapper", "OneToMan
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapperService", "..\MapperService\MapperService.csproj", "{9587283B-0D58-486B-A566-EF70CB7EAF2B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapperService.Unit.Tests", "MapperService.Unit.Tests\MapperService.Unit.Tests.csproj", "{AFED83CF-ABD7-4E7C-9CA9-96ECEAF2826F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapperService.Unit.Tests", "..\MapperService.Unit.Tests\MapperService.Unit.Tests.csproj", "{AFED83CF-ABD7-4E7C-9CA9-96ECEAF2826F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DocumentProcessingService", "DocumentProcessingService", "{55058793-7A3A-4E03-8B3D-5A89010B3C5D}"
 EndProject
