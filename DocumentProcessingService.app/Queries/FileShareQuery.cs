@@ -88,11 +88,12 @@ namespace DocumentProcessingService.app.Queries
             var splitParams = processingParams.Split('|');
             if(splitParams?.Length == 2)
             {
-                var parameters = splitParams.Last()?.Split(',');
+                var paramList = splitParams.Last()?.Split(',');
+                var paramDictionary = paramList.Distinct(StringComparer.OrdinalIgnoreCase).ToDictionary(x => x, y => false);
                 return new DocumentContent
                 {
                     ProcessingType = splitParams.First(),
-                    Parameters = parameters,
+                    Parameters = paramDictionary,
                     Body = body
                 };
             }
