@@ -1,5 +1,6 @@
 ﻿using DocumentProcessingService.app.Queries;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -17,6 +18,7 @@ namespace DocumentProcessingService.app.Services
     {
         private readonly IFileShareQuery _fileShareQuery;
         private readonly ILogger<FileProcessingService> _logger;
+        private const string LOOKUP_PROCESSING_TYPE = "lookup";
 
         public FileProcessingService(IFileShareQuery fileShareQuery, ILogger<FileProcessingService> logger)
         {
@@ -28,28 +30,36 @@ namespace DocumentProcessingService.app.Services
         {
             var documentContents = await _fileShareQuery.ReadFile(fileName);
 
-            if (documentContents == null)
+            if (documentContents != null && documentContents.ProcessingType.Equals(LOOKUP_PROCESSING_TYPE, StringComparison.Ordinal))
+            {
+                return ProcessLookupType(documentContents.Parameters, documentContents.Body);
+            }
+            else
             {
                 _logger.LogWarning($"Invalid file not processed: {fileName}");
                 return null;
             }
-            
-            foreach (var line in documentContents.Body)
+        }
+
+        private IEnumerable<string> ProcessLookupType(Dictionary<string, bool> parameters, IEnumerable<string> body)
+        {
+            foreach (var line in body)
             {
                 if (!string.IsNullOrWhiteSpace(line))
                 {
-                    var parametersFound = FindParametersInLine(line, documentContents.Parameters);
-                    UpdateParameterDictionary(documentContents.Parameters, parametersFound);
+                    var parametersFound = FindParametersInLine(line, parameters);
+                    UpdateParameterDictionary(parameters, parametersFound);
                 }
             }
-            return documentContents?.Parameters?.Keys;
+            return parameters.Where(x => x.Value).Select(x => x.Key);
         }
 
         private List<string> FindParametersInLine(string line, Dictionary<string, bool> paramDictionary)
         {
-            return paramDictionary
+            var a = paramDictionary
                 .Where(x => !x.Value && Regex.IsMatch(line, $@"\b{x.Key}\b", RegexOptions.IgnoreCase))
                 .Select(y => y.Key).ToList();
+            return a;
         }
 
         private void UpdateParameterDictionary(Dictionary<string, bool> paramDictionary, List<string> parametersFound)

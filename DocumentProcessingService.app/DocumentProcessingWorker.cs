@@ -15,12 +15,13 @@ namespace DocumentProcessingService.app
 
         private readonly TimeSpan _actionInterval;
         private readonly ILogger<DocumentProcessingWorker> _logger;
-
+        private const int INTERVAL_HOURS = 1;
+        
         public DocumentProcessingWorker(IServiceProvider services, ILogger<DocumentProcessingWorker> logger)
         {
             Services = services;
             _logger = logger;
-            _actionInterval = TimeSpan.FromHours(1);
+            _actionInterval = TimeSpan.FromHours(INTERVAL_HOURS);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

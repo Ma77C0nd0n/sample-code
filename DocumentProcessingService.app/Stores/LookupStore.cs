@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DocumentProcessingService.app.Stores
@@ -21,19 +22,22 @@ namespace DocumentProcessingService.app.Stores
     public class LookupStore : ILookupStore
     {
         private readonly DocumentContext _context;
-        private readonly IMemoryCache _memoryCache;
-
         private readonly ILogger<LookupStore> _logger;
 
-        public LookupStore(DocumentContext context, IMemoryCache memoryCache, ILogger<LookupStore> logger)
+        public LookupStore(DocumentContext context, ILogger<LookupStore> logger)
         {
             _context = context;
-            _memoryCache = memoryCache;
             _logger = logger;
         }
 
         public async Task RecordAsync(string client, string documentId, IEnumerable<string> keywords)
         {
+            if (string.IsNullOrWhiteSpace(client) || string.IsNullOrWhiteSpace(documentId) || keywords == null)
+            {
+                _logger.LogWarning($"Invalid input, keywords not persisted for client {client}, documentId {documentId}");
+                return;
+            }
+
             var documentItem = new DocumentItem
             {
                 Client = client,
@@ -41,7 +45,7 @@ namespace DocumentProcessingService.app.Stores
                 Keywords = string.Join(',', keywords)
             };
 
-            _context.DocumentItems.Add(documentItem);
+            await _context.DocumentItems.AddAsync(documentItem);
             await _context.SaveChangesAsync();
 
             _logger.LogInformation($"Successfully persisted result for client: {client}, document: {documentId}");

@@ -7,6 +7,8 @@ namespace DocumentProcessingService.app.Models
         public DocumentContext(DbContextOptions<DocumentContext> options) 
             : base(options) {}
 
-        public DbSet<DocumentItem> DocumentItems { get; set; }
+        public DocumentContext() { }
+
+        public virtual DbSet<DocumentItem> DocumentItems { get; set; }
     }
 }

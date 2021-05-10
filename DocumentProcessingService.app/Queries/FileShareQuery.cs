@@ -11,6 +11,7 @@ namespace DocumentProcessingService.app.Queries
 {
     public interface IFileShareQuery
     {
+        IEnumerable<string> GetDirectories(string rootDirectory);
         Task<IEnumerable<string>> GetFileNamesForNetworkLocationAsync(string path);
         Task<DocumentContent> ReadFile(string fileName);
     }
@@ -119,6 +120,12 @@ namespace DocumentProcessingService.app.Queries
             _logger.LogInformation($"Successfully Read File {fileNameWithPath}");
 
             return fileContent;
+        }
+
+        public IEnumerable<string> GetDirectories(string rootDirectory)
+        {
+            string baseDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, rootDirectory);
+            return Directory.GetDirectories(baseDirectory);
         }
     }
 }
